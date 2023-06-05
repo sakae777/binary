@@ -8,7 +8,7 @@
 
 typedef struct {
     char id[MAX_ID_LEN];
-    unsigned char age;
+    int age;
     unsigned short hp;
     double x, y;
     char friends[MAX_FRIENDS][MAX_ID_LEN];
@@ -28,7 +28,7 @@ void write_player() {
     p.id[strcspn(p.id, "\n")] = '\0'; // 개행 문자 제거
 
     printf("나이를 입력하세요: ");
-    scanf("%hhu", &p.age);
+    scanf("%d", &p.age);
 
     printf("HP를 입력하세요: ");
     scanf("%hu", &p.hp);
@@ -56,6 +56,20 @@ void write_player() {
 
     fwrite(&p, sizeof(Player), 1, fp);
     fclose(fp);
+		
+		char filename[MAX_ID_LEN + 5]; // 파일 이름 생성
+    sprintf(filename, "%s.bin", p.id);
+
+    FILE* fp_player = fopen(filename, "wb");
+    if (fp_player == NULL) {
+        printf("오류: 플레이어 파일을 생성할 수 없습니다.\n");
+        return;
+    }
+
+    fwrite(&p, sizeof(Player), 1, fp_player);
+    fclose(fp_player);
+		
+
 
     printf("완료되었습니다.\n\n");
 }
@@ -126,6 +140,11 @@ void delete_player() {
 
     remove(FILENAME);
     rename("temp.bin", FILENAME);
+
+		char filename[MAX_ID_LEN + 5];
+    sprintf(filename, "%s.bin", id);
+   	remove(filename);
+
     printf("%s 삭제 완료.\n", id);
 }
 
@@ -144,7 +163,6 @@ int main() {
         switch (choice) {
             case 1:
                 write_player();
-                printf("완료되었습니다.\n\n");
                 break;
 
             case 2:
